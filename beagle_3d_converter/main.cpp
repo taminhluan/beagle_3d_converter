@@ -1,4 +1,4 @@
-#pragma warning(disable  : 4996)
+#pragma warning(disable  : 4996) // 4996: error: std::ctime is unsafe use std::ctime_s instead
 
 #include <iostream>
 #include <vector>
