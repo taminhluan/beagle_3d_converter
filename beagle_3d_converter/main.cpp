@@ -1,3 +1,5 @@
+#pragma warning(disable  : 4996)
+
 #include <iostream>
 #include <vector>
 #include <assimp/Importer.hpp>
@@ -9,6 +11,9 @@
 // for cout << setPrecision(3);
 #include <iomanip>
 #include <format>
+
+#include <chrono>
+#include <ctime> 
 
 bool isVerbose = false;
 std::string inputPath;
@@ -138,18 +143,29 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Processing file
-    Assimp::Importer importer;
-    //"C:/Users/luantm/Workshop/beagle_3d_converter/external/assimp/test/models/FBX/spider.fbx"
-    const aiScene* scene = importer.ReadFile(inputPath, aiProcess_Triangulate | aiProcess_FlipUVs);
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+    auto start = std::chrono::system_clock::now();
+    std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+    std::cout << "start computation at " << std::ctime(&start_time) << "\n";
     {
-        std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-        return 0;
+
+        // Processing file
+        Assimp::Importer importer;
+        //"C:/Users/luantm/Workshop/beagle_3d_converter/external/assimp/test/models/FBX/spider.fbx"
+        const aiScene* scene = importer.ReadFile(inputPath, aiProcess_Triangulate | aiProcess_FlipUVs);
+        if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+        {
+            std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
+            return 0;
+        }
+
+
+        processNode(scene->mRootNode, scene);
     }
 
-
-    processNode(scene->mRootNode, scene);
-
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+    std::cout << "finished computation at " << std::ctime(&end_time)
+        << "elapsed time: " << elapsed_seconds.count() << "s\n";
     return 0;
 }
